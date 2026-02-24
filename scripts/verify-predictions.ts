@@ -23,8 +23,8 @@ export async function verifyPendingPredictions(
     prediction.verifiedAt = now.toISOString();
     changed = true;
 
-    // Notify mom via Signal
-    notifyResult(prediction);
+    // Signal notification disabled for now — collecting blind data
+    // notifyResult(prediction);
 
     const predDate = new Date(prediction.timestamp).toLocaleDateString(undefined, {
       month: 'short',
