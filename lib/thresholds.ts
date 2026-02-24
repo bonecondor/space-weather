@@ -22,6 +22,12 @@ export const THRESHOLDS = {
     high: 600,
     extreme: 800,
   },
+  density: {
+    quiet: 10,
+    elevated: 15,
+    high: 20,
+    extreme: 40,
+  },
 } as const;
 
 export type StatusLevel = 'quiet' | 'elevated' | 'minor' | 'moderate' | 'strong' | 'severe' | 'extreme';
@@ -47,6 +53,13 @@ export function getSolarWindStatus(speed: number): StatusLevel {
   if (speed >= 800) return 'severe';
   if (speed >= 600) return 'moderate';
   if (speed >= 500) return 'elevated';
+  return 'quiet';
+}
+
+export function getDensityStatus(density: number): StatusLevel {
+  if (density >= 40) return 'severe';
+  if (density >= 20) return 'moderate';
+  if (density >= 15) return 'elevated';
   return 'quiet';
 }
 

@@ -142,3 +142,85 @@ export interface CacheEntry<T> {
   fetchedAt: string;
   expiresAt: string;
 }
+
+// === Active Solar Region (from SWPC solar_regions.json) ===
+export interface ActiveRegion {
+  regionNumber: number;
+  observedDate: string;
+  latitude: number;
+  longitude: number;
+  location: string; // e.g., "N13W13"
+  area: number | null; // millionths of solar hemisphere
+  spotClass: string | null; // e.g., "Cso", "Hrx"
+  magneticClass: string | null; // e.g., "A", "B", "BG", "BGD"
+  numberSpots: number | null;
+  flareProb_C: number; // 0-100 percent
+  flareProb_M: number; // 0-100 percent
+  flareProb_X: number; // 0-100 percent
+  protonProb: number; // 0-100 percent
+  firstDate: string | null;
+}
+
+// === Notification System Types ===
+
+export type AlertUrgency = 'critical' | 'high' | 'moderate' | 'info';
+
+export interface SpaceWeatherAlert {
+  id: string; // Deterministic ID for dedup: `${type}-${key}`
+  type: string; // e.g., 'cme-earth', 'flare-x', 'kp-threshold', 'all-clear'
+  urgency: AlertUrgency;
+  title: string; // Short headline
+  body: string; // 1-2 sentence detail with impact context
+  timestamp: string; // ISO string when alert was generated
+  sourceEventId?: string; // Link to DONKI/SWPC event ID
+}
+
+export interface DataHealthEntry {
+  source: string; // e.g., 'swpc-kp', 'donki-cme', 'swpc-regions'
+  ok: boolean;
+  lastSuccess: string; // ISO timestamp
+  lastError?: string;
+}
+
+// Stored CME forecast fields for revision detection
+export interface KnownCME {
+  id: string;
+  predictedKp: number | null;
+  predictedArrival: string | null;
+}
+
+export interface CheckerState {
+  schemaVersion: number; // Currently 1
+  lastRunAt: string;
+
+  // Previous metric values (for threshold-crossing detection)
+  lastKp: number;
+  lastBz: number;
+  lastWindSpeed: number;
+  lastWindDensity: number;
+
+  // Flags for which thresholds were previously crossed (for "all clear" detection)
+  kpWasAbove5: boolean;
+  kpWasAbove7: boolean;
+  bzWasBelow10: boolean;
+  bzWasBelow15: boolean;
+  windWasAbove600: boolean;
+  windWasAbove700: boolean;
+  densityWasAbove20: boolean;
+
+  // Known event IDs (prevent re-alerting)
+  knownCMEs: KnownCME[]; // With forecast fields for revision detection
+  knownFlareIds: string[];
+  knownHSSIds: string[];
+  knownRegionNumbers: number[];
+  knownAlertProductIds: string[];
+
+  // Cooldown tracking: last time each alert type was sent
+  lastCooldowns: Record<string, string>; // alertType -> ISO timestamp
+
+  // Data health per source
+  dataHealth: DataHealthEntry[];
+
+  // Alert history (last 100)
+  alertsSent: SpaceWeatherAlert[];
+}
