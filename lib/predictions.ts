@@ -74,7 +74,7 @@ const DEFAULT_STATE: PredictionState = {
 // === Backend Detection ===
 
 function useRedis(): boolean {
-  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 
 let _redis: import('@upstash/redis').Redis | null = null;
@@ -82,8 +82,8 @@ async function getRedis() {
   if (!_redis) {
     const { Redis } = await import('@upstash/redis');
     _redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+      url: process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
     });
   }
   return _redis;
